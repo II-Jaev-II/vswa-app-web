@@ -17,6 +17,10 @@ Route::view('subprojects', 'subprojects')
     ->middleware(['auth', 'verified'])
     ->name('subprojects');
 
+Route::view('users', 'users')
+    ->middleware(['auth', 'verified'])
+    ->name('users');
+
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
