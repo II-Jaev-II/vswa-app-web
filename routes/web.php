@@ -13,13 +13,35 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::view('subprojects', 'subprojects')
-    ->middleware(['auth', 'verified'])
-    ->name('subprojects');
+Route::middleware(['auth', 'verified', 'ADMIN'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::view('dashboard', 'admin.dashboard')
+            ->name('dashboard');
 
-Route::view('users', 'users')
-    ->middleware(['auth', 'verified'])
-    ->name('users');
+        Route::view('subprojects', 'admin.subprojects')
+            ->name('subprojects');
+
+        Route::view('users', 'admin.users')
+            ->name('users');
+});
+
+Route::middleware(['auth', 'verified', 'LGU_PG'])
+    ->prefix('lgu')
+    ->name('lgu.')
+    ->group(function () {
+        Route::view('dashboard', 'lgu.dashboard')
+            ->name('dashboard');
+});
+
+Route::middleware(['auth', 'verified', 'CONTRACTOR'])
+    ->prefix('contractor')
+    ->name('contractor.')
+    ->group(function () {
+        Route::view('dashboard', 'contractor.dashboard')
+            ->name('dashboard');
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
@@ -29,4 +51,4 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

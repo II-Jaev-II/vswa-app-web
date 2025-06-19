@@ -28,16 +28,18 @@ class Register extends Component
     {
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // hash and create
         $validated['password'] = Hash::make($validated['password']);
+        $user = User::create($validated);
 
-        event(new Registered(($user = User::create($validated))));
+        event(new Registered($user));
 
-        Auth::login($user);
+        session()->flash('success', 'Account successfully registered. Please contact the administrator to verify your account.');
 
-        $this->redirect(route('dashboard', absolute: false), navigate: true);
+        $this->reset(['name', 'email', 'password', 'password_confirmation']);
     }
 }

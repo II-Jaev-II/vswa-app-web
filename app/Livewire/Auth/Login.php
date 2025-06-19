@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Auth;
 
+use App\Enums\UserRole;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -26,7 +27,7 @@ class Login extends Component
     /**
      * Handle an incoming authentication request.
      */
-    public function login(): void
+    public function login()
     {
         $this->validate();
 
@@ -42,6 +43,25 @@ class Login extends Component
 
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
+
+        if (Auth::user()->role === UserRole::UNVERIFIED) {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'email' => 'Your account is not yet verified. Please contact the administrator.',
+            ]);
+        }
+
+        if (Auth::check() && Auth::user()->role === UserRole::ADMIN) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        if (Auth::check() && Auth::user()->role === UserRole::CONTRACTOR) {
+            return redirect()->route('contractor.dashboard');
+        }
+
+        if (Auth::check() && Auth::user()->role === UserRole::LGU_PG) {
+            return redirect()->route('lgu.dashboard');
+        }
 
         $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
     }
@@ -72,6 +92,6 @@ class Login extends Component
      */
     protected function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
+        return Str::transliterate(Str::lower($this->email) . '|' . request()->ip());
     }
 }

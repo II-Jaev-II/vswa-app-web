@@ -3,7 +3,11 @@
 
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
-
+    @if (session()->has('success'))
+    <div class="alert alert-success bg-lime-600 border-lime-700 p-4 rounded-md">
+        {{ session('success') }}
+    </div>
+    @endif
     <form wire:submit="register" class="flex flex-col gap-6">
         <!-- Name -->
         <flux:input
@@ -13,8 +17,7 @@
             required
             autofocus
             autocomplete="name"
-            :placeholder="__('Full name')"
-        />
+            :placeholder="__('Full name')" />
 
         <!-- Email Address -->
         <flux:input
@@ -23,8 +26,7 @@
             type="email"
             required
             autocomplete="email"
-            placeholder="email@example.com"
-        />
+            placeholder="email@example.com" />
 
         <!-- Password -->
         <flux:input
@@ -34,8 +36,7 @@
             required
             autocomplete="new-password"
             :placeholder="__('Password')"
-            viewable
-        />
+            viewable />
 
         <!-- Confirm Password -->
         <flux:input
@@ -45,8 +46,7 @@
             required
             autocomplete="new-password"
             :placeholder="__('Confirm password')"
-            viewable
-        />
+            viewable />
 
         <div class="flex items-center justify-end">
             <flux:button type="submit" variant="primary" class="w-full">
