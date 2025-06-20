@@ -18,7 +18,7 @@
 
                 @if (Auth::check() && Auth::user()->role === App\Enums\UserRole::ADMIN)
                 <flux:navlist.item icon="home" :href="route('admin.dashboard')" :current="request()->routeIs('admin.dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-                <flux:navlist.item icon="home" :href="route('admin.subprojects')" :current="request()->routeIs('admin.subprojects')" wire:navigate>{{ __('Subprojects') }}</flux:navlist.item>
+                <flux:navlist.item icon="document-chart-bar" :href="route('admin.subprojects')" :current="request()->routeIs('admin.subprojects')" wire:navigate>{{ __('Subprojects') }}</flux:navlist.item>
                 <flux:navlist.item icon="users" :href="route('admin.users')" :current="request()->routeIs('admin.users')" wire:navigate>{{ __('Users') }}</flux:navlist.item>
                 @endif
 
