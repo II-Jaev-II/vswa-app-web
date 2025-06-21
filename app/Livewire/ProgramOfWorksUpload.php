@@ -31,7 +31,7 @@ class ProgramOfWorksUpload extends Component
     {
         $this->validate();
 
-        $path     = $this->excelFile->store('excel-uploads');
+        $path = $this->excelFile->store('excel-uploads');
         $fullPath = Storage::path($path);
 
         try {
@@ -42,19 +42,36 @@ class ProgramOfWorksUpload extends Component
 
             foreach ($reader->getSheetIterator() as $sheet) {
                 foreach ($sheet->getRowIterator() as $row) {
+                    $cells = $row->toArray();
+
                     if ($isHeader) {
                         $isHeader = false;
+
+                        // Define exactly what you expect in the 1st row:
+                        $expected = ['Item No.', 'Scope of Work', 'Quantity', 'Unit'];
+
+                        // Only look at the first four cells:
+                        $headerSlice = array_slice($cells, 0, count($expected));
+
+                        if ($headerSlice !== $expected) {
+                            // Stop processing and show an error in the form
+                            $this->addError('excelFile', 'Please use the provided template.');
+                            // make sure to close out the reader so finally still runs
+                            $reader->close();
+                            return;
+                        }
+
+                        // skip the header row
                         continue;
                     }
 
-                    $cells = $row->toArray();
-
+                    // … if we got here, header was valid, so import each data row …
                     ProgramOfWork::create([
-                        'subproject_id'  => $this->subproject_id,
-                        'item_no'        => $cells[0] ?? null,
-                        'scope_of_work'  => $cells[1] ?? null,
-                        'quantity'       => $cells[2] ?? 0,
-                        'unit'           => $cells[3] ?? null,
+                        'subproject_id' => $this->subproject_id,
+                        'item_no' => $cells[0] ?? null,
+                        'scope_of_work' => $cells[1] ?? null,
+                        'quantity' => $cells[2] ?? 0,
+                        'unit' => $cells[3] ?? null,
                     ]);
                 }
             }
@@ -80,9 +97,7 @@ class ProgramOfWorksUpload extends Component
 
     public function render()
     {
-        $items = ProgramOfWork::where('subproject_id', $this->subproject_id)
-            ->orderBy('item_no')
-            ->get();
+        $items = ProgramOfWork::where('subproject_id', $this->subproject_id)->orderBy('item_no')->get();
 
         return view('livewire.program-of-works-upload', compact('items'));
     }
